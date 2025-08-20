@@ -8,6 +8,7 @@ import CalendarIcon from './icons/CalendarIcon';
 import ClipboardCheckIcon from './icons/ClipboardCheckIcon';
 import ChartPieIcon from './icons/ChartPieIcon';
 import UsersIcon from './icons/UsersIcon';
+import ClipboardListIcon from './icons/ClipboardListIcon';
 
 interface AttendanceSheetProps {
   teacher: Teacher;
@@ -223,7 +224,10 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
       <main className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
-            <h3 className="font-bold text-xl text-teal-700 mb-4 text-center">Seleccione una Asignatura</h3>
+            <h3 className="flex items-center justify-center gap-2 font-bold text-xl text-teal-700 mb-4">
+              <ClipboardListIcon />
+              Seleccione una Asignatura
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {subjects.map((subject, index) => {
                 const color = subjectColors[index % subjectColors.length];
@@ -241,18 +245,16 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             </div>
           </div>
           <div className="bg-cyan-100/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center">
-            <h3 className="font-bold text-xl text-cyan-800 mb-4">Seleccione una Fecha</h3>
-            <div className="relative">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => onDateChange(e.target.value)}
-                className="bg-white border-2 border-slate-300 text-teal-900 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5 pl-10"
-              />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <CalendarIcon />
-              </div>
-            </div>
+            <h3 className="flex items-center justify-center gap-2 font-bold text-xl text-cyan-800 mb-4">
+              <CalendarIcon />
+              Seleccione una Fecha
+            </h3>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => onDateChange(e.target.value)}
+              className="bg-white border-2 border-slate-300 text-teal-900 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 block w-full max-w-xs p-2.5"
+            />
           </div>
         </div>
 
