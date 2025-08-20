@@ -11,6 +11,7 @@ import UsersIcon from './icons/UsersIcon';
 import ClipboardListIcon from './icons/ClipboardListIcon';
 import SaveIcon from './icons/SaveIcon';
 import TrashIcon from './icons/TrashIcon';
+import SpinnerIcon from './icons/SpinnerIcon';
 
 interface AttendanceSheetProps {
   teacher: Teacher;
@@ -26,6 +27,7 @@ interface AttendanceSheetProps {
   savedRecords: Record<string, Record<string, Record<string, boolean>>>;
   onSaveRecord: (teacherId: string, subjectId: string, date: string) => void;
   onClearAttendance: (subjectId: string, date: string) => void;
+  isSaving: boolean;
 }
 
 const subjectColors = [
@@ -53,7 +55,8 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
   onDateChange,
   savedRecords,
   onSaveRecord,
-  onClearAttendance
+  onClearAttendance,
+  isSaving
 }) => {
   const currentAttendance = useMemo(() => {
     return attendance[selectedDate]?.[selectedSubjectId] || {};
@@ -193,7 +196,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
   };
 
   const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
-    if (isRecordSaved) return;
+    if (isRecordSaved || isSaving) return;
     onAttendanceChange(studentId, selectedSubjectId, selectedDate, status);
   };
 
@@ -281,7 +284,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
               <h3 className="font-bold text-xl text-teal-700 mb-4 text-center">Listado de Estudiantes Presenciales Primer Nivel Medio D</h3>
               <ul className="space-y-3">
                 {students.map(student => (
-                  <li key={student.id} className={`grid grid-cols-[1fr_auto_auto] items-center gap-2 p-3 bg-slate-50 rounded-lg shadow-sm transition-opacity ${isRecordSaved ? 'opacity-70' : ''}`}>
+                  <li key={student.id} className={`grid grid-cols-[1fr_auto_auto] items-center gap-2 p-3 bg-slate-50 rounded-lg shadow-sm transition-opacity ${isRecordSaved || isSaving ? 'opacity-70' : ''}`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-2.5 h-10 rounded-full ${getPercentageColor(studentAttendancePercentages[student.id] || 0).replace('text-', 'bg-')}`}></div>
                       <div>
@@ -294,13 +297,13 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                       </div>
                     </div>
                     <div className="col-start-3 flex justify-end items-center gap-2">
-                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Present)} className={getStatusButtonClass(student.id, AttendanceStatus.Present)} aria-label={`Marcar a ${student.name} como presente`} disabled={isRecordSaved}>
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Present)} className={getStatusButtonClass(student.id, AttendanceStatus.Present)} aria-label={`Marcar a ${student.name} como presente`} disabled={isRecordSaved || isSaving}>
                         <CheckIcon />
                       </button>
-                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Absent)} className={getStatusButtonClass(student.id, AttendanceStatus.Absent)} aria-label={`Marcar a ${student.name} como ausente`} disabled={isRecordSaved}>
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Absent)} className={getStatusButtonClass(student.id, AttendanceStatus.Absent)} aria-label={`Marcar a ${student.name} como ausente`} disabled={isRecordSaved || isSaving}>
                         <XIcon />
                       </button>
-                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Late)} className={getStatusButtonClass(student.id, AttendanceStatus.Late)} aria-label={`Marcar a ${student.name} como atrasado`} disabled={isRecordSaved}>
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Late)} className={getStatusButtonClass(student.id, AttendanceStatus.Late)} aria-label={`Marcar a ${student.name} como atrasado`} disabled={isRecordSaved || isSaving}>
                         <ClockIcon />
                       </button>
                     </div>
@@ -318,20 +321,20 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                   <>
                     <button
                       onClick={() => onClearAttendance(selectedSubjectId, selectedDate)}
-                      disabled={!hasAttendanceData}
-                      className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-rose-500 hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform active:scale-95"
+                      disabled={!hasAttendanceData || isSaving}
+                      className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform active:scale-95"
                       aria-label="Limpiar selección de asistencia"
                     >
-                      <TrashIcon />
+                      {isSaving ? <SpinnerIcon /> : <TrashIcon />}
                       <span className="ml-2">Limpiar Selección</span>
                     </button>
                     <button
                       onClick={() => onSaveRecord(teacher.id, selectedSubjectId, selectedDate)}
-                      disabled={!hasAttendanceData}
-                      className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform active:scale-95"
+                      disabled={!hasAttendanceData || isSaving}
+                      className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform active:scale-95"
                       aria-label="Guardar registro de asistencia"
                     >
-                      <SaveIcon />
+                      {isSaving ? <SpinnerIcon /> : <SaveIcon />}
                       <span className="ml-2">Guardar Registro</span>
                     </button>
                   </>

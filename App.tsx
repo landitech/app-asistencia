@@ -3,6 +3,8 @@ import { TEACHERS, STUDENTS, SUBJECTS } from './constants';
 import { Teacher, AttendanceStatus, AttendanceData } from './types';
 import LoginScreen from './components/LoginScreen';
 import AttendanceSheet from './components/AttendanceSheet';
+import SpinnerIcon from './components/icons/SpinnerIcon';
+import * as api from './api';
 
 const getTodaysDateString = (): string => {
   const today = new Date();
@@ -20,37 +22,37 @@ const App: React.FC = () => {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>(getTodaysDateString());
   const [savedRecords, setSavedRecords] = useState<SavedRecords>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedAttendance = localStorage.getItem('attendanceData');
-      if (storedAttendance) {
-        setAttendance(JSON.parse(storedAttendance));
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await api.getInitialData();
+        if (data) {
+          setAttendance(data.attendance);
+          setSavedRecords(data.savedRecords);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos desde la API simulada", error);
+      } finally {
+        setIsLoading(false);
       }
-      const storedSavedRecords = localStorage.getItem('savedRecords');
-      if (storedSavedRecords) {
-        setSavedRecords(JSON.parse(storedSavedRecords));
-      }
-    } catch (error) {
-      console.error("Error al cargar datos desde localStorage", error);
-    }
+    };
+    loadData();
   }, []);
 
-  useEffect(() => {
+  const saveData = useCallback(async (newAttendance: AttendanceData, newSavedRecords: SavedRecords) => {
+    setIsSaving(true);
     try {
-      localStorage.setItem('attendanceData', JSON.stringify(attendance));
+      await api.saveAllData(newAttendance, newSavedRecords);
     } catch (error) {
-      console.error("Error al guardar datos de asistencia en localStorage", error);
+      console.error("Error al guardar datos en la API simulada", error);
+    } finally {
+      setIsSaving(false);
     }
-  }, [attendance]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('savedRecords', JSON.stringify(savedRecords));
-    } catch (error) {
-      console.error("Error al guardar registros en localStorage", error);
-    }
-  }, [savedRecords]);
+  }, []);
 
   const handleTeacherSelect = useCallback((teacher: Teacher) => {
     setSelectedTeacher(teacher);
@@ -62,53 +64,58 @@ const App: React.FC = () => {
   }, []);
 
   const handleAttendanceChange = useCallback((studentId: string, subjectId: string, date: string, status: AttendanceStatus) => {
-    setAttendance(prev => {
-      const newAttendance = { ...prev };
-      if (!newAttendance[date]) {
-        newAttendance[date] = {};
-      }
-      if (!newAttendance[date][subjectId]) {
-        newAttendance[date][subjectId] = {};
-      }
-      newAttendance[date][subjectId][studentId] = status;
-      return newAttendance;
-    });
-  }, []);
+    const newAttendance = { ...attendance };
+    if (!newAttendance[date]) {
+      newAttendance[date] = {};
+    }
+    if (!newAttendance[date][subjectId]) {
+      newAttendance[date][subjectId] = {};
+    }
+    newAttendance[date][subjectId][studentId] = status;
+    setAttendance(newAttendance);
+    saveData(newAttendance, savedRecords);
+  }, [attendance, savedRecords, saveData]);
 
   const handleClearAttendance = useCallback((subjectId: string, date: string) => {
-    setAttendance(prev => {
-      if (!prev[date]?.[subjectId]) {
-        return prev;
-      }
+    if (!attendance[date]?.[subjectId]) {
+      return;
+    }
+    
+    const newAttendance = { ...attendance };
+    const newDateAttendance = { ...newAttendance[date] };
+    
+    delete newDateAttendance[subjectId];
 
-      const newAttendance = { ...prev };
-      const newDateAttendance = { ...newAttendance[date] };
-      
-      delete newDateAttendance[subjectId];
-
-      if (Object.keys(newDateAttendance).length === 0) {
-        delete newAttendance[date];
-      } else {
-        newAttendance[date] = newDateAttendance;
-      }
-      
-      return newAttendance;
-    });
-  }, []);
+    if (Object.keys(newDateAttendance).length === 0) {
+      delete newAttendance[date];
+    } else {
+      newAttendance[date] = newDateAttendance;
+    }
+    
+    setAttendance(newAttendance);
+    saveData(newAttendance, savedRecords);
+  }, [attendance, savedRecords, saveData]);
 
   const handleSaveRecord = useCallback((teacherId: string, subjectId: string, date: string) => {
-    setSavedRecords(prev => {
-      const newRecords = { ...prev };
-      if (!newRecords[date]) {
-        newRecords[date] = {};
-      }
-      if (!newRecords[date][teacherId]) {
-        newRecords[date][teacherId] = {};
-      }
-      newRecords[date][teacherId][subjectId] = true;
-      return newRecords;
-    });
-  }, []);
+    const newRecords = { ...savedRecords };
+    if (!newRecords[date]) {
+      newRecords[date] = {};
+    }
+    if (!newRecords[date][teacherId]) {
+      newRecords[date][teacherId] = {};
+    }
+    newRecords[date][teacherId][subjectId] = true;
+    setSavedRecords(newRecords);
+    saveData(attendance, newRecords);
+  }, [savedRecords, attendance, saveData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-emerald-50">
+        <SpinnerIcon size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-emerald-50 font-sans text-teal-800">
@@ -130,6 +137,7 @@ const App: React.FC = () => {
               savedRecords={savedRecords}
               onSaveRecord={handleSaveRecord}
               onClearAttendance={handleClearAttendance}
+              isSaving={isSaving}
             />
         </div>
       )}
