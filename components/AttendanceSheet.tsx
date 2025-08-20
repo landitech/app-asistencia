@@ -233,6 +233,9 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
         {selectedSubjectId ? (
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
             <div className="p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-teal-800 tracking-wide">Listado de Estudiantes presenciales 1ºD</h3>
+              </div>
               <div className="flow-root">
                 <ul role="list" className="-my-5 divide-y divide-slate-200/70">
                   {students.map((student, index) => {
