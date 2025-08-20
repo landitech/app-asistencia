@@ -7,6 +7,8 @@ import LogoutIcon from './icons/LogoutIcon';
 import PencilRulerIcon from './icons/PencilRulerIcon';
 import CalendarIcon from './icons/CalendarIcon';
 import ClipboardCheckIcon from './icons/ClipboardCheckIcon';
+import ChartPieIcon from './icons/ChartPieIcon';
+import UsersIcon from './icons/UsersIcon';
 
 interface AttendanceSheetProps {
   teacher: Teacher;
@@ -267,7 +269,10 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                      <div className="flex flex-col items-center gap-6">
-                        <h4 className="text-lg font-semibold text-teal-800">Asistencia por Asignatura</h4>
+                        <div className="flex items-center gap-2">
+                           <ChartPieIcon />
+                           <h4 className="text-lg font-semibold text-teal-800">Asistencia por Asignatura</h4>
+                        </div>
                         <div className="relative w-40 h-40">
                         <div 
                             className="w-full h-full rounded-full transition-all duration-500"
@@ -301,7 +306,10 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                     </div>
 
                     <div className="flex flex-col items-center gap-6">
-                        <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
+                        <div className="flex items-center gap-2">
+                            <UsersIcon />
+                            <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
+                        </div>
                         <div className="relative w-40 h-40">
                         <div 
                             className="w-full h-full rounded-full transition-all duration-500"
