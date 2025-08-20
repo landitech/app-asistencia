@@ -39,6 +39,14 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
     return attendance[selectedDate]?.[selectedSubjectId] || {};
   }, [attendance, selectedDate, selectedSubjectId]);
 
+  const selectedSubject = useMemo(() => {
+    return subjects.find(s => s.id === selectedSubjectId);
+  }, [subjects, selectedSubjectId]);
+
+  const subjectChartTitle = selectedSubject 
+    ? `Asistencia en ${selectedSubject.name}` 
+    : 'Asistencia por Asignatura';
+
   const studentAttendancePercentages = useMemo(() => {
     if (!selectedSubjectId) return {};
 
@@ -269,9 +277,9 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                      <div className="flex flex-col items-center gap-6">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-center">
                            <ChartPieIcon />
-                           <h4 className="text-lg font-semibold text-teal-800">Asistencia por Asignatura</h4>
+                           <h4 className="text-lg font-semibold text-teal-800">{subjectChartTitle}</h4>
                         </div>
                         <div className="relative w-40 h-40">
                         <div 
