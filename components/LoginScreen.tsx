@@ -24,7 +24,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ teachers, onSelectTeacher }) 
             <div className="inline-block p-4 bg-teal-100 rounded-full">
                 <BookIcon />
             </div>
-            <h1 className="text-4xl font-bold text-teal-900">Control de Asistencia</h1>
+            <div>
+              <h1 className="text-4xl font-bold text-teal-900">Control de Asistencia</h1>
+              <p className="text-sm font-bold text-teal-600 mt-1">Versión 1.0</p>
+            </div>
             <p className="text-teal-700">Selecciona tu perfil para comenzar</p>
         </div>
         <div className="space-y-6">

@@ -181,6 +181,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
           <PencilRulerIcon />
           <div>
             <h1 className="text-3xl font-bold text-teal-900">Control de Asistencia</h1>
+            <p className="text-xs font-bold text-teal-600">Versión 1.0</p>
           </div>
         </div>
         <div className="text-center">
