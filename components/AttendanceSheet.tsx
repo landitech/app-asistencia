@@ -23,6 +23,18 @@ interface AttendanceSheetProps {
   onDateChange: (date: string) => void;
 }
 
+const subjectColors = [
+  { bg: 'bg-red-200', text: 'text-red-800', hoverBg: 'hover:bg-red-300', ring: 'ring-red-500' },
+  { bg: 'bg-sky-200', text: 'text-sky-800', hoverBg: 'hover:bg-sky-300', ring: 'ring-sky-500' },
+  { bg: 'bg-indigo-200', text: 'text-indigo-800', hoverBg: 'hover:bg-indigo-300', ring: 'ring-indigo-500' },
+  { bg: 'bg-teal-200', text: 'text-teal-800', hoverBg: 'hover:bg-teal-300', ring: 'ring-teal-500' },
+  { bg: 'bg-rose-200', text: 'text-rose-800', hoverBg: 'hover:bg-rose-300', ring: 'ring-rose-500' },
+  { bg: 'bg-amber-200', text: 'text-amber-800', hoverBg: 'hover:bg-amber-300', ring: 'ring-amber-500' },
+  { bg: 'bg-emerald-200', text: 'text-emerald-800', hoverBg: 'hover:bg-emerald-300', ring: 'ring-emerald-500' },
+  { bg: 'bg-slate-200', text: 'text-slate-800', hoverBg: 'hover:bg-slate-300', ring: 'ring-slate-500' },
+];
+
+
 const AttendanceSheet: React.FC<AttendanceSheetProps> = ({ 
   teacher, 
   students, 
@@ -210,33 +222,48 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
       </header>
 
       <main>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
-          <div className="relative">
-            <select
-              id="subject-select"
-              value={selectedSubjectId}
-              onChange={(e) => onSubjectChange(e.target.value)}
-              className="w-full pl-4 pr-10 py-2.5 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
-              style={{ colorScheme: 'light' }}
-            >
-              <option value="" disabled>Seleccione una asignatura...</option>
-              {subjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>{subject.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CalendarIcon />
+        <div className="mb-6 p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
+            <h3 className="text-lg font-semibold text-teal-800 mb-4 text-center">Seleccione una Asignatura</h3>
+            <div className="flex flex-wrap gap-3 justify-center">
+              {subjects.map((subject, index) => {
+                const isSelected = selectedSubjectId === subject.id;
+                const colors = subjectColors[index % subjectColors.length];
+                const buttonClasses = `
+                  px-4 py-2 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out transform focus:outline-none
+                  ${colors.bg} ${colors.text} ${colors.hoverBg}
+                  ${isSelected 
+                    ? `ring-2 ${colors.ring} scale-110 shadow-xl` 
+                    : 'hover:scale-105'}
+                `;
+                return (
+                  <button
+                    key={subject.id}
+                    onClick={() => onSubjectChange(subject.id)}
+                    className={buttonClasses}
+                  >
+                    {subject.name}
+                  </button>
+                );
+              })}
             </div>
-            <input
-              type="date"
-              id="date-picker"
-              value={selectedDate}
-              onChange={(e) => onDateChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
-              style={{ colorScheme: 'light' }}
-            />
+        </div>
+        
+        <div className="mb-8 p-6 bg-cyan-100/70 backdrop-blur-sm rounded-2xl shadow-lg border border-cyan-200">
+          <div className="flex flex-col items-center gap-2">
+              <h3 className="text-lg font-semibold text-teal-800 text-center">Seleccione una Fecha</h3>
+              <div className="relative max-w-xs w-full">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <CalendarIcon />
+                  </div>
+                  <input
+                    type="date"
+                    id="date-picker"
+                    value={selectedDate}
+                    onChange={(e) => onDateChange(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
+                    style={{ colorScheme: 'light' }}
+                  />
+              </div>
           </div>
         </div>
 
@@ -276,7 +303,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             </div>
             <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                     <div className="flex flex-col items-center gap-6">
+                     <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-100 flex flex-col items-center gap-6">
                         <div className="flex items-center gap-2 text-center">
                            <ChartPieIcon />
                            <h4 className="text-lg font-semibold text-teal-800">{subjectChartTitle}</h4>
@@ -313,7 +340,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-6">
+                    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-100 flex flex-col items-center gap-6">
                         <div className="flex items-center gap-2">
                             <UsersIcon />
                             <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
