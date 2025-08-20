@@ -209,8 +209,8 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
         </div>
         {/* Welcome Block - Left on Desktop */}
         <div className="text-center sm:text-left order-2 sm:order-1">
-            <p className="text-teal-700 text-sm sm:text-base">Bienvenido, <span className="font-semibold">{teacher.name}</span></p>
-            <p className="text-sm text-teal-600">Docente del CEIA Fermín Fierro Luengo</p>
+            <p className="text-teal-700 text-lg">Bienvenido, <span className="font-semibold">{teacher.name}</span></p>
+            <p className="text-base text-teal-600">Docente del CEIA Fermín Fierro Luengo</p>
         </div>
         {/* Logout Block - Right on Desktop */}
         <div className='flex items-center justify-center sm:justify-end order-3'>
