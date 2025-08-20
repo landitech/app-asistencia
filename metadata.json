@@ -1,0 +1,5 @@
+{
+  "name": "Control de Asistencia Estudiantil",
+  "description": "Una aplicación para que los docentes registren y gestionen la asistencia de sus estudiantes de manera sencilla y eficiente. Seleccione un docente para comenzar, luego elija una asignatura y una fecha para pasar lista.",
+  "requestFramePermissions": []
+}

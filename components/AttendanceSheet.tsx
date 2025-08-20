@@ -1,0 +1,268 @@
+import React, { useMemo } from 'react';
+import { Teacher, Student, Subject, AttendanceStatus, AttendanceData } from '../types';
+import CheckIcon from './icons/CheckIcon';
+import XIcon from './icons/XIcon';
+import ClockIcon from './icons/ClockIcon';
+import LogoutIcon from './icons/LogoutIcon';
+import PencilRulerIcon from './icons/PencilRulerIcon';
+import CalendarIcon from './icons/CalendarIcon';
+import ClipboardCheckIcon from './icons/ClipboardCheckIcon';
+
+interface AttendanceSheetProps {
+  teacher: Teacher;
+  students: Student[];
+  subjects: Subject[];
+  onLogout: () => void;
+  attendance: AttendanceData;
+  onAttendanceChange: (studentId: string, subjectId: string, date: string, status: AttendanceStatus) => void;
+  selectedSubjectId: string;
+  onSubjectChange: (id: string) => void;
+  selectedDate: string;
+  onDateChange: (date: string) => void;
+}
+
+const AttendanceSheet: React.FC<AttendanceSheetProps> = ({ 
+  teacher, 
+  students, 
+  subjects, 
+  onLogout, 
+  attendance, 
+  onAttendanceChange,
+  selectedSubjectId,
+  onSubjectChange,
+  selectedDate,
+  onDateChange
+}) => {
+  const currentAttendance = useMemo(() => {
+    return attendance[selectedDate]?.[selectedSubjectId] || {};
+  }, [attendance, selectedDate, selectedSubjectId]);
+
+  const studentAttendancePercentages = useMemo(() => {
+    if (!selectedSubjectId) return {};
+
+    const percentages: Record<string, number> = {};
+
+    students.forEach(student => {
+      let presentOrLateCount = 0;
+      let totalClasses = 0;
+
+      Object.keys(attendance).forEach(date => {
+        const subjectAttendance = attendance[date]?.[selectedSubjectId];
+        if (subjectAttendance && typeof subjectAttendance[student.id] !== 'undefined') {
+          totalClasses++;
+          const status = subjectAttendance[student.id];
+          if (status === AttendanceStatus.Present || status === AttendanceStatus.Late) {
+            presentOrLateCount++;
+          }
+        }
+      });
+      
+      percentages[student.id] = totalClasses > 0
+        ? (presentOrLateCount / totalClasses) * 100
+        : 100;
+    });
+
+    return percentages;
+  }, [attendance, selectedSubjectId, students]);
+  
+  const cumulativeSummary = useMemo(() => {
+    const stats = { present: 0, absent: 0, late: 0 };
+    if (!selectedSubjectId) {
+      return stats;
+    }
+
+    Object.keys(attendance).forEach(date => {
+      if (date <= selectedDate) {
+        const dailySubjectAttendance = attendance[date]?.[selectedSubjectId];
+        if (dailySubjectAttendance) {
+          Object.values(dailySubjectAttendance).forEach(status => {
+            if (stats[status] !== undefined) {
+              stats[status]++;
+            }
+          });
+        }
+      }
+    });
+
+    return stats;
+  }, [attendance, selectedSubjectId, selectedDate]);
+
+
+  const getPercentageColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-green-600';
+    if (percentage >= 70) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
+    onAttendanceChange(studentId, selectedSubjectId, selectedDate, status);
+  };
+
+  const getStatusButtonClass = (studentId: string, status: AttendanceStatus) => {
+    const baseClass = "p-2 rounded-full transition-all duration-200 ease-in-out transform hover:scale-110 flex items-center justify-center";
+    const isActive = currentAttendance[studentId] === status;
+    switch (status) {
+      case AttendanceStatus.Present:
+        return `${baseClass} ${isActive ? 'bg-emerald-500 text-white shadow-lg' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`;
+      case AttendanceStatus.Absent:
+        return `${baseClass} ${isActive ? 'bg-rose-500 text-white shadow-lg' : 'bg-rose-100 text-rose-700 hover:bg-rose-200'}`;
+      case AttendanceStatus.Late:
+        return `${baseClass} ${isActive ? 'bg-amber-500 text-white shadow-lg' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`;
+      default:
+        return '';
+    }
+  };
+  
+  const chartData = useMemo(() => {
+    const totalMarked = cumulativeSummary.present + cumulativeSummary.absent + cumulativeSummary.late;
+    if (totalMarked === 0) {
+      return {
+        gradient: `conic-gradient(#e2e8f0 0% 100%)`, // slate-200
+      };
+    }
+
+    const presentPercent = (cumulativeSummary.present / totalMarked) * 100;
+    const absentPercent = (cumulativeSummary.absent / totalMarked) * 100;
+
+    const presentStop = presentPercent;
+    const absentStop = presentPercent + absentPercent;
+    
+    const gradient = `conic-gradient(
+      #10b981 0% ${presentStop}%, 
+      #f43f5e ${presentStop}% ${absentStop}%, 
+      #f59e0b ${absentStop}% 100%
+    )`;
+    
+    return { gradient };
+  }, [cumulativeSummary]);
+
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mb-8 pb-4">
+        <div className="flex items-center gap-3 justify-center sm:justify-start">
+          <PencilRulerIcon />
+          <div>
+            <h1 className="text-3xl font-bold text-teal-900">Control de Asistencia</h1>
+          </div>
+        </div>
+        <div className="text-center">
+            <p className="text-teal-700 text-sm sm:text-base">Bienvenido, <span className="font-semibold">{teacher.name}</span></p>
+            <p className="text-sm text-teal-600">Docente del CEIA Fermín Fierro Luengo</p>
+        </div>
+        <div className='flex items-center justify-center sm:justify-end'>
+          <button
+            onClick={onLogout}
+            className="p-2 rounded-full text-slate-500 hover:bg-teal-100 hover:text-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            title="Cerrar Sesión"
+          >
+            <LogoutIcon />
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
+          <div className="relative">
+            <select
+              id="subject-select"
+              value={selectedSubjectId}
+              onChange={(e) => onSubjectChange(e.target.value)}
+              className="w-full pl-4 pr-10 py-2.5 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
+              style={{ colorScheme: 'light' }}
+            >
+              <option value="" disabled>Seleccione una asignatura...</option>
+              {subjects.map((subject) => (
+                <option key={subject.id} value={subject.id}>{subject.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <CalendarIcon />
+            </div>
+            <input
+              type="date"
+              id="date-picker"
+              value={selectedDate}
+              onChange={(e) => onDateChange(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
+              style={{ colorScheme: 'light' }}
+            />
+          </div>
+        </div>
+
+        {selectedSubjectId ? (
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flow-root">
+                <ul role="list" className="-my-5 divide-y divide-slate-200/70">
+                  {students.map((student, index) => {
+                    const percentage = studentAttendancePercentages[student.id] ?? 100;
+                    return (
+                        <li key={student.id} className="py-4">
+                        <div className="flex items-center space-x-4">
+                            <div className="flex-shrink-0">
+                            <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">{index + 1}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-teal-900 truncate">{student.name}</p>
+                                <p className={`text-xs font-medium ${getPercentageColor(percentage)}`}>
+                                    Asistencia acumulada: {percentage.toFixed(0)}%
+                                </p>
+                            </div>
+                            <div className="inline-flex items-center space-x-3">
+                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Present)} className={getStatusButtonClass(student.id, AttendanceStatus.Present)} title="Presente"><CheckIcon /></button>
+                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Absent)} className={getStatusButtonClass(student.id, AttendanceStatus.Absent)} title="Ausente"><XIcon /></button>
+                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Late)} className={getStatusButtonClass(student.id, AttendanceStatus.Late)} title="Atrasado"><ClockIcon /></button>
+                            </div>
+                        </div>
+                        </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+            <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
+                <div className="flex flex-col items-center gap-6">
+                    <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
+                    <div className="relative w-40 h-40">
+                      <div 
+                        className="w-full h-full rounded-full transition-all duration-500"
+                        style={{ background: chartData.gradient }}
+                      ></div>
+                      <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner">
+                      </div>
+                    </div>
+                    <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
+                        <div className="flex items-center">
+                            <span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+                            <span className="font-medium text-teal-700">Presentes: {cumulativeSummary.present}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-3 h-3 rounded-full bg-rose-500 mr-2"></span>
+                            <span className="font-medium text-teal-700">Ausentes: {cumulativeSummary.absent}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+                            <span className="font-medium text-teal-700">Atrasados: {cumulativeSummary.late}</span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+          </div>
+        ) : (
+          <div className="text-center py-16 px-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
+            <div className="flex justify-center items-center text-slate-400 mb-4">
+                <ClipboardCheckIcon />
+            </div>
+            <h3 className="text-xl font-semibold text-teal-800">Comienza a pasar lista</h3>
+            <p className="text-teal-600 mt-2">Por favor, elija una asignatura y una fecha para ver la nómina de estudiantes.</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default AttendanceSheet;
