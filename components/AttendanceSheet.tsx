@@ -306,7 +306,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             </div>
             <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                     <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-100 flex flex-col items-center gap-6">
+                     <div className="bg-indigo-100/80 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-indigo-200 flex flex-col items-center gap-6">
                         <div className="flex items-center gap-2 text-center">
                            <ChartPieIcon />
                            <h4 className="text-lg font-semibold text-teal-800">{subjectChartTitle}</h4>
@@ -316,7 +316,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                             className="w-full h-full rounded-full transition-all duration-500"
                             style={{ background: subjectDonutChartData.gradient }}
                         ></div>
-                        <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner flex items-center justify-center">
+                        <div className="absolute inset-0 m-auto w-28 h-28 bg-indigo-50/80 rounded-full shadow-inner flex items-center justify-center">
                             <span className="text-2xl font-bold text-teal-800">
                                 {
                                     (subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late) > 0 ?
@@ -343,7 +343,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                         </div>
                     </div>
 
-                    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-100 flex flex-col items-center gap-6">
+                    <div className="bg-emerald-100/80 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-200 flex flex-col items-center gap-6">
                         <div className="flex items-center gap-2">
                             <UsersIcon />
                             <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
@@ -353,7 +353,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
                             className="w-full h-full rounded-full transition-all duration-500"
                             style={{ background: overallDonutChartData.gradient }}
                         ></div>
-                        <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner flex items-center justify-center">
+                        <div className="absolute inset-0 m-auto w-28 h-28 bg-emerald-50/80 rounded-full shadow-inner flex items-center justify-center">
                             <span className="text-2xl font-bold text-teal-800">
                                 {
                                     (overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late) > 0 ?

@@ -32,14 +32,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ teachers, onSelectTeacher }) 
         </div>
         <div className="space-y-6">
             <div>
-                <label htmlFor="teacher-select" className="block text-sm font-medium text-teal-800 mb-1">
-                    Docente
-                </label>
                 <select
                     id="teacher-select"
                     value={selectedTeacherId}
                     onChange={(e) => setSelectedTeacherId(e.target.value)}
-                    className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base text-teal-900 border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm transition-all"
+                    required
+                    className="block w-full px-3 py-2.5 text-base text-teal-900 border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm transition-all text-left invalid:text-center"
                     style={{ colorScheme: 'light' }}
                 >
                     <option value="" disabled>Seleccione un docente...</option>
@@ -59,7 +57,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ teachers, onSelectTeacher }) 
             </button>
         </div>
         <div className="text-center pt-6">
-            <span className="inline-block bg-teal-500 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+            <span className="inline-block bg-teal-500 text-white text-lg font-semibold px-4 py-1.5 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
                 Creado por Orlando Rivas
             </span>
         </div>
