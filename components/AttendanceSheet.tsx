@@ -199,18 +199,21 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
   return (
     <div className="w-full max-w-7xl">
       <header className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mb-8 pb-4">
-        <div className="flex items-center gap-3 justify-center sm:justify-start">
+        {/* Title Block - Centered */}
+        <div className="flex items-center gap-3 justify-center order-1 sm:order-2">
           <PencilRulerIcon />
-          <div>
+          <div className="text-center">
             <h1 className="text-3xl font-bold text-teal-900">Control de Asistencia</h1>
             <p className="text-xs font-bold text-teal-600">Versión 1.0</p>
           </div>
         </div>
-        <div className="text-center">
+        {/* Welcome Block - Left on Desktop */}
+        <div className="text-center sm:text-left order-2 sm:order-1">
             <p className="text-teal-700 text-sm sm:text-base">Bienvenido, <span className="font-semibold">{teacher.name}</span></p>
             <p className="text-sm text-teal-600">Docente del CEIA Fermín Fierro Luengo</p>
         </div>
-        <div className='flex items-center justify-center sm:justify-end'>
+        {/* Logout Block - Right on Desktop */}
+        <div className='flex items-center justify-center sm:justify-end order-3'>
           <button
             onClick={onLogout}
             className="p-2 rounded-full text-slate-500 hover:bg-teal-100 hover:text-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
