@@ -337,7 +337,7 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
             </div>
           </div>
         ) : (
-          <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg">
+          <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg flex flex-col items-center justify-center">
             <ClipboardCheckIcon />
             <h3 className="mt-4 text-2xl font-semibold text-teal-700">Seleccione una asignatura</h3>
             <p className="mt-1 text-teal-600">Elija una asignatura y fecha para comenzar a registrar la asistencia.</p>
