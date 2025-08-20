@@ -4,7 +4,6 @@ import CheckIcon from './icons/CheckIcon';
 import XIcon from './icons/XIcon';
 import ClockIcon from './icons/ClockIcon';
 import LogoutIcon from './icons/LogoutIcon';
-import PencilRulerIcon from './icons/PencilRulerIcon';
 import CalendarIcon from './icons/CalendarIcon';
 import ClipboardCheckIcon from './icons/ClipboardCheckIcon';
 import ChartPieIcon from './icons/ChartPieIcon';
@@ -190,205 +189,156 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
         return `${baseClass} ${isActive ? 'bg-rose-500 text-white shadow-lg' : 'bg-rose-100 text-rose-700 hover:bg-rose-200'}`;
       case AttendanceStatus.Late:
         return `${baseClass} ${isActive ? 'bg-amber-500 text-white shadow-lg' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`;
-      default:
-        return '';
     }
   };
 
-
   return (
-    <div className="w-full max-w-7xl">
-      <header className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mb-8 pb-4">
-        {/* Title Block - Centered */}
-        <div className="flex items-center gap-3 justify-center order-1 sm:order-2">
-          <PencilRulerIcon />
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-teal-900">Control de Asistencia</h1>
-            <p className="text-xs font-bold text-teal-600">Versión 1.0</p>
+    <div className="w-full max-w-7xl mx-auto">
+      <header className="mb-8 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+          <div className="order-2 sm:order-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+              <h2 className="text-2xl font-bold text-teal-700">Bienvenido,</h2>
+              <p className="text-xl text-teal-600">{teacher.name}</p>
           </div>
-        </div>
-        {/* Welcome Block - Left on Desktop */}
-        <div className="text-center sm:text-left order-2 sm:order-1">
-            <p className="text-teal-700 text-lg">Bienvenido, <span className="font-semibold">{teacher.name}</span></p>
-            <p className="text-base text-teal-600">Docente del CEIA Fermín Fierro Luengo</p>
-        </div>
-        {/* Logout Block - Right on Desktop */}
-        <div className='flex items-center justify-center sm:justify-end order-3'>
-          <button
-            onClick={onLogout}
-            className="p-2 rounded-full text-slate-500 hover:bg-teal-100 hover:text-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-            title="Cerrar Sesión"
-          >
-            <LogoutIcon />
-          </button>
+          
+          <div className="order-1 sm:order-2 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-teal-800">Control de Asistencia</h1>
+            </div>
+            <p className="text-sm font-bold text-teal-600 mt-1">Versión 1.0</p>
+          </div>
+
+          <div className="order-3 sm:order-3 flex justify-center sm:justify-end">
+            <button 
+              onClick={onLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-600 bg-rose-100 rounded-lg hover:bg-rose-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 transform hover:scale-105"
+            >
+              <LogoutIcon />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      <main>
-        <div className="mb-6 p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
-            <h3 className="text-lg font-semibold text-teal-800 mb-4 text-center">Seleccione una Asignatura</h3>
-            <div className="flex flex-wrap gap-3 justify-center">
+      <main className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
+            <h3 className="font-bold text-xl text-teal-700 mb-4 text-center">Seleccione una Asignatura</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {subjects.map((subject, index) => {
+                const color = subjectColors[index % subjectColors.length];
                 const isSelected = selectedSubjectId === subject.id;
-                const colors = subjectColors[index % subjectColors.length];
-                const buttonClasses = `
-                  px-4 py-2 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out transform focus:outline-none
-                  ${colors.bg} ${colors.text} ${colors.hoverBg}
-                  ${isSelected 
-                    ? `ring-2 ${colors.ring} scale-110 shadow-xl` 
-                    : 'hover:scale-105'}
-                `;
                 return (
                   <button
                     key={subject.id}
                     onClick={() => onSubjectChange(subject.id)}
-                    className={buttonClasses}
+                    className={`p-3 text-sm font-semibold rounded-lg transition-all duration-300 transform focus:outline-none ${color.bg} ${color.text} ${color.hoverBg} ${isSelected ? `scale-110 ring-2 ${color.ring} shadow-md` : 'hover:scale-105'}`}
                   >
                     {subject.name}
                   </button>
                 );
               })}
             </div>
-        </div>
-        
-        <div className="mb-8 p-6 bg-cyan-100/70 backdrop-blur-sm rounded-2xl shadow-lg border border-cyan-200">
-          <div className="flex flex-col items-center gap-2">
-              <h3 className="text-lg font-semibold text-teal-800 text-center">Seleccione una Fecha</h3>
-              <div className="relative max-w-xs w-full">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <CalendarIcon />
-                  </div>
-                  <input
-                    type="date"
-                    id="date-picker"
-                    value={selectedDate}
-                    onChange={(e) => onDateChange(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-base text-teal-900 bg-white/50 border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-lg shadow-sm"
-                    style={{ colorScheme: 'light' }}
-                  />
+          </div>
+          <div className="bg-cyan-100/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center">
+            <h3 className="font-bold text-xl text-cyan-800 mb-4">Seleccione una Fecha</h3>
+            <div className="relative">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => onDateChange(e.target.value)}
+                className="bg-white border-2 border-slate-300 text-teal-900 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5 pl-10"
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <CalendarIcon />
               </div>
+            </div>
           </div>
         </div>
 
         {selectedSubjectId ? (
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-teal-800 tracking-wide">Listado de Estudiantes Presenciales Primer Nivel Medio D</h3>
-              </div>
-              <div className="flow-root">
-                <ul role="list" className="-my-5 divide-y divide-slate-200/70">
-                  {students.map((student, index) => {
-                    const percentage = studentAttendancePercentages[student.id] ?? 100;
-                    return (
-                        <li key={student.id} className="py-4">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex-shrink-0">
-                            <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">{index + 1}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-teal-900 truncate">{student.name}</p>
-                                <p className={`text-xs font-medium ${getPercentageColor(percentage)}`}>
-                                    Asistencia acumulada: {percentage.toFixed(0)}%
-                                </p>
-                            </div>
-                            <div className="inline-flex items-center space-x-3">
-                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Present)} className={getStatusButtonClass(student.id, AttendanceStatus.Present)} title="Presente"><CheckIcon /></button>
-                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Absent)} className={getStatusButtonClass(student.id, AttendanceStatus.Absent)} title="Ausente"><XIcon /></button>
-                              <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Late)} className={getStatusButtonClass(student.id, AttendanceStatus.Late)} title="Atrasado"><ClockIcon /></button>
-                            </div>
+          <div className="space-y-8">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
+              <h3 className="font-bold text-xl text-teal-700 mb-4 text-center">Listado de Estudiantes Presenciales Primer Nivel Medio D</h3>
+              <ul className="space-y-3">
+                {students.map(student => (
+                  <li key={student.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-2 p-3 bg-slate-50 rounded-lg shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2.5 h-10 rounded-full ${getPercentageColor(studentAttendancePercentages[student.id] || 0).replace('text-', 'bg-')}`}></div>
+                      <div>
+                        <span className="font-medium text-teal-900">{student.name}</span>
+                        <div className="flex items-center gap-1 text-xs">
+                          <span className={getPercentageColor(studentAttendancePercentages[student.id] || 0)}>
+                            Asistencia: {(studentAttendancePercentages[student.id] || 0).toFixed(0)}%
+                          </span>
                         </div>
-                        </li>
-                    );
-                  })}
-                </ul>
+                      </div>
+                    </div>
+                    <div className="col-start-3 flex justify-end items-center gap-2">
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Present)} className={getStatusButtonClass(student.id, AttendanceStatus.Present)} aria-label={`Marcar a ${student.name} como presente`}>
+                        <CheckIcon />
+                      </button>
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Absent)} className={getStatusButtonClass(student.id, AttendanceStatus.Absent)} aria-label={`Marcar a ${student.name} como ausente`}>
+                        <XIcon />
+                      </button>
+                      <button onClick={() => handleStatusChange(student.id, AttendanceStatus.Late)} className={getStatusButtonClass(student.id, AttendanceStatus.Late)} aria-label={`Marcar a ${student.name} como atrasado`}>
+                        <ClockIcon />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-indigo-100/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg flex flex-col items-center">
+                <h4 className="flex items-center gap-2 text-lg font-bold text-indigo-800 mb-4">
+                  <ChartPieIcon />
+                  {subjectChartTitle}
+                </h4>
+                <div className="relative w-40 h-40">
+                  <div 
+                    className="w-full h-full rounded-full" 
+                    style={{ background: subjectDonutChartData.gradient }}
+                  ></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-indigo-100/80 w-24 h-24 rounded-full"></div>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>Presente: {subjectCumulativeSummary.present}</span>
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-slate-500 mr-2"></div>Ausente: {subjectCumulativeSummary.absent}</span>
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></div>Atraso: {subjectCumulativeSummary.late}</span>
+                </div>
+              </div>
+
+              <div className="bg-emerald-100/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg flex flex-col items-center">
+                <h4 className="flex items-center gap-2 text-lg font-bold text-emerald-800 mb-4">
+                  <UsersIcon />
+                  Asistencia General del Curso
+                </h4>
+                <div className="relative w-40 h-40">
+                  <div 
+                    className="w-full h-full rounded-full" 
+                    style={{ background: overallDonutChartData.gradient }}
+                  ></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-emerald-100/80 w-24 h-24 rounded-full"></div>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>Presente: {overallCumulativeSummary.present}</span>
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-rose-500 mr-2"></div>Ausente: {overallCumulativeSummary.absent}</span>
+                  <span className="flex items-center"><div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>Atraso: {overallCumulativeSummary.late}</span>
+                </div>
               </div>
             </div>
-            <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                     <div className="bg-indigo-100/80 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-indigo-200 flex flex-col items-center gap-6">
-                        <div className="flex items-center gap-2 text-center">
-                           <ChartPieIcon />
-                           <h4 className="text-lg font-semibold text-teal-800">{subjectChartTitle}</h4>
-                        </div>
-                        <div className="relative w-40 h-40">
-                        <div 
-                            className="w-full h-full rounded-full transition-all duration-500"
-                            style={{ background: subjectDonutChartData.gradient }}
-                        ></div>
-                        <div className="absolute inset-0 m-auto w-28 h-28 bg-indigo-50/80 rounded-full shadow-inner flex items-center justify-center">
-                            <span className="text-2xl font-bold text-teal-800">
-                                {
-                                    (subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late) > 0 ?
-                                    `${Math.round(
-                                        ((subjectCumulativeSummary.present + subjectCumulativeSummary.late) / (subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late)) * 100
-                                    )}%` : 'N/A'
-                                }
-                            </span>
-                        </div>
-                        </div>
-                        <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Presentes: {subjectCumulativeSummary.present}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-slate-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Ausentes: {subjectCumulativeSummary.absent}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Atrasados: {subjectCumulativeSummary.late}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-emerald-100/80 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-emerald-200 flex flex-col items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <UsersIcon />
-                            <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
-                        </div>
-                        <div className="relative w-40 h-40">
-                        <div 
-                            className="w-full h-full rounded-full transition-all duration-500"
-                            style={{ background: overallDonutChartData.gradient }}
-                        ></div>
-                        <div className="absolute inset-0 m-auto w-28 h-28 bg-emerald-50/80 rounded-full shadow-inner flex items-center justify-center">
-                            <span className="text-2xl font-bold text-teal-800">
-                                {
-                                    (overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late) > 0 ?
-                                    `${Math.round(
-                                        ((overallCumulativeSummary.present + overallCumulativeSummary.late) / (overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late)) * 100
-                                    )}%` : 'N/A'
-                                }
-                            </span>
-                        </div>
-                        </div>
-                        <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Presentes: {overallCumulativeSummary.present}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-rose-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Ausentes: {overallCumulativeSummary.absent}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
-                                <span className="font-medium text-teal-700">Atrasados: {overallCumulativeSummary.late}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
           </div>
         ) : (
-          <div className="text-center py-16 px-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100">
-            <div className="flex justify-center items-center text-slate-400 mb-4">
-                <ClipboardCheckIcon />
-            </div>
-            <h3 className="text-xl font-semibold text-teal-800">Comienza a pasar lista</h3>
-            <p className="text-teal-600 mt-2">Por favor, elija una asignatura y una fecha para ver la nómina de estudiantes.</p>
+          <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg">
+            <ClipboardCheckIcon />
+            <h3 className="mt-4 text-2xl font-semibold text-teal-700">Seleccione una asignatura</h3>
+            <p className="mt-1 text-teal-600">Elija una asignatura y fecha para comenzar a registrar la asistencia.</p>
           </div>
         )}
       </main>

@@ -57,7 +57,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ teachers, onSelectTeacher }) 
             </button>
         </div>
         <div className="text-center pt-6">
-            <span className="inline-block bg-teal-500 text-white text-lg font-semibold px-4 py-1.5 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+            <span className="inline-block bg-teal-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
                 Creado por Orlando Rivas
             </span>
         </div>
