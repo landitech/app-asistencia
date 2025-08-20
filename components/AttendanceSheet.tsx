@@ -65,27 +65,87 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
     return percentages;
   }, [attendance, selectedSubjectId, students]);
   
-  const cumulativeSummary = useMemo(() => {
+  const subjectCumulativeSummary = useMemo(() => {
     const stats = { present: 0, absent: 0, late: 0 };
     if (!selectedSubjectId) {
       return stats;
     }
 
     Object.keys(attendance).forEach(date => {
-      if (date <= selectedDate) {
-        const dailySubjectAttendance = attendance[date]?.[selectedSubjectId];
-        if (dailySubjectAttendance) {
-          Object.values(dailySubjectAttendance).forEach(status => {
-            if (stats[status] !== undefined) {
-              stats[status]++;
-            }
-          });
-        }
+      const dailySubjectAttendance = attendance[date]?.[selectedSubjectId];
+      if (dailySubjectAttendance) {
+        Object.values(dailySubjectAttendance).forEach(status => {
+          if (stats[status] !== undefined) {
+            stats[status]++;
+          }
+        });
       }
     });
 
     return stats;
-  }, [attendance, selectedSubjectId, selectedDate]);
+  }, [attendance, selectedSubjectId]);
+
+  const overallCumulativeSummary = useMemo(() => {
+    const stats = { present: 0, absent: 0, late: 0 };
+    Object.values(attendance).forEach(dailyAttendance => {
+      Object.values(dailyAttendance).forEach(subjectAttendance => {
+        Object.values(subjectAttendance).forEach(status => {
+          if (stats[status] !== undefined) {
+            stats[status]++;
+          }
+        });
+      });
+    });
+    return stats;
+  }, [attendance]);
+  
+  const subjectDonutChartData = useMemo(() => {
+    const totalMarked = subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late;
+    if (totalMarked === 0) {
+      return {
+        gradient: `conic-gradient(#e2e8f0 0% 100%)`, // slate-200
+      };
+    }
+
+    const presentPercent = (subjectCumulativeSummary.present / totalMarked) * 100;
+    const absentPercent = (subjectCumulativeSummary.absent / totalMarked) * 100;
+
+    const presentStop = presentPercent;
+    const absentStop = presentPercent + absentPercent;
+    
+    // Using a different color scheme (blue, slate, indigo) to differentiate
+    const gradient = `conic-gradient(
+      #3b82f6 0% ${presentStop}%, 
+      #64748b ${presentStop}% ${absentStop}%, 
+      #6366f1 ${absentStop}% 100%
+    )`;
+    
+    return { gradient };
+  }, [subjectCumulativeSummary]);
+
+
+  const overallDonutChartData = useMemo(() => {
+    const totalMarked = overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late;
+    if (totalMarked === 0) {
+      return {
+        gradient: `conic-gradient(#e2e8f0 0% 100%)`, // slate-200
+      };
+    }
+
+    const presentPercent = (overallCumulativeSummary.present / totalMarked) * 100;
+    const absentPercent = (overallCumulativeSummary.absent / totalMarked) * 100;
+
+    const presentStop = presentPercent;
+    const absentStop = presentPercent + absentPercent;
+    
+    const gradient = `conic-gradient(
+      #10b981 0% ${presentStop}%, 
+      #f43f5e ${presentStop}% ${absentStop}%, 
+      #f59e0b ${absentStop}% 100%
+    )`;
+    
+    return { gradient };
+  }, [overallCumulativeSummary]);
 
 
   const getPercentageColor = (percentage: number) => {
@@ -112,33 +172,10 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
         return '';
     }
   };
-  
-  const chartData = useMemo(() => {
-    const totalMarked = cumulativeSummary.present + cumulativeSummary.absent + cumulativeSummary.late;
-    if (totalMarked === 0) {
-      return {
-        gradient: `conic-gradient(#e2e8f0 0% 100%)`, // slate-200
-      };
-    }
-
-    const presentPercent = (cumulativeSummary.present / totalMarked) * 100;
-    const absentPercent = (cumulativeSummary.absent / totalMarked) * 100;
-
-    const presentStop = presentPercent;
-    const absentStop = presentPercent + absentPercent;
-    
-    const gradient = `conic-gradient(
-      #10b981 0% ${presentStop}%, 
-      #f43f5e ${presentStop}% ${absentStop}%, 
-      #f59e0b ${absentStop}% 100%
-    )`;
-    
-    return { gradient };
-  }, [cumulativeSummary]);
 
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl">
       <header className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mb-8 pb-4">
         <div className="flex items-center gap-3 justify-center sm:justify-start">
           <PencilRulerIcon />
@@ -224,28 +261,72 @@ const AttendanceSheet: React.FC<AttendanceSheetProps> = ({
               </div>
             </div>
             <footer className="bg-teal-50/50 border-t border-slate-200/70 px-6 py-8">
-                <div className="flex flex-col items-center gap-6">
-                    <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
-                    <div className="relative w-40 h-40">
-                      <div 
-                        className="w-full h-full rounded-full transition-all duration-500"
-                        style={{ background: chartData.gradient }}
-                      ></div>
-                      <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner">
-                      </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                     <div className="flex flex-col items-center gap-6">
+                        <h4 className="text-lg font-semibold text-teal-800">Asistencia por Asignatura</h4>
+                        <div className="relative w-40 h-40">
+                        <div 
+                            className="w-full h-full rounded-full transition-all duration-500"
+                            style={{ background: subjectDonutChartData.gradient }}
+                        ></div>
+                        <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner flex items-center justify-center">
+                            <span className="text-2xl font-bold text-teal-800">
+                                {
+                                    (subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late) > 0 ?
+                                    `${Math.round(
+                                        ((subjectCumulativeSummary.present + subjectCumulativeSummary.late) / (subjectCumulativeSummary.present + subjectCumulativeSummary.absent + subjectCumulativeSummary.late)) * 100
+                                    )}%` : 'N/A'
+                                }
+                            </span>
+                        </div>
+                        </div>
+                        <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Presentes: {subjectCumulativeSummary.present}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-slate-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Ausentes: {subjectCumulativeSummary.absent}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Atrasados: {subjectCumulativeSummary.late}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
-                        <div className="flex items-center">
-                            <span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
-                            <span className="font-medium text-teal-700">Presentes: {cumulativeSummary.present}</span>
+
+                    <div className="flex flex-col items-center gap-6">
+                        <h4 className="text-lg font-semibold text-teal-800">Asistencia General del Curso</h4>
+                        <div className="relative w-40 h-40">
+                        <div 
+                            className="w-full h-full rounded-full transition-all duration-500"
+                            style={{ background: overallDonutChartData.gradient }}
+                        ></div>
+                        <div className="absolute inset-0 m-auto w-28 h-28 bg-white/95 rounded-full shadow-inner flex items-center justify-center">
+                            <span className="text-2xl font-bold text-teal-800">
+                                {
+                                    (overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late) > 0 ?
+                                    `${Math.round(
+                                        ((overallCumulativeSummary.present + overallCumulativeSummary.late) / (overallCumulativeSummary.present + overallCumulativeSummary.absent + overallCumulativeSummary.late)) * 100
+                                    )}%` : 'N/A'
+                                }
+                            </span>
                         </div>
-                        <div className="flex items-center">
-                            <span className="w-3 h-3 rounded-full bg-rose-500 mr-2"></span>
-                            <span className="font-medium text-teal-700">Ausentes: {cumulativeSummary.absent}</span>
                         </div>
-                        <div className="flex items-center">
-                            <span className="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
-                            <span className="font-medium text-teal-700">Atrasados: {cumulativeSummary.late}</span>
+                        <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 text-sm">
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Presentes: {overallCumulativeSummary.present}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-rose-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Ausentes: {overallCumulativeSummary.absent}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+                                <span className="font-medium text-teal-700">Atrasados: {overallCumulativeSummary.late}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

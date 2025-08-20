@@ -11,6 +11,13 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+      /* --- Tipografía Fluida --- */
+      /* Establece un tamaño de fuente raíz fluido basado en el ancho de la ventana gráfica */
+      /* Esto escalará proporcionalmente todas las unidades 'rem' (como las utilidades de texto de Tailwind) */
+      html {
+        /* Escala de 14px a 16px entre ventanas de ~320px y ~1280px */
+        font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+      }
     </style>
   <script type="importmap">
 {

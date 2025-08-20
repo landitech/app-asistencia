@@ -16,6 +16,7 @@ export const STUDENTS: Student[] = [
   { id: 's4', name: 'Isaac López' },
   { id: 's5', name: 'Daniel Suarez' },
   { id: 's6', name: 'Norma Pedraza' },
+  { id: 's7', name: 'Audolia Rivera' },
 ];
 
 export const SUBJECTS: Subject[] = [

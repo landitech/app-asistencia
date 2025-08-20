@@ -42,22 +42,24 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-emerald-50 font-sans text-slate-800">
+    <div className="min-h-screen bg-emerald-50 font-sans text-teal-800">
       {!selectedTeacher ? (
         <LoginScreen teachers={TEACHERS} onSelectTeacher={handleTeacherSelect} />
       ) : (
-        <AttendanceSheet
-          teacher={selectedTeacher}
-          students={STUDENTS}
-          subjects={SUBJECTS}
-          onLogout={handleLogout}
-          attendance={attendance}
-          onAttendanceChange={handleAttendanceChange}
-          selectedSubjectId={selectedSubjectId}
-          onSubjectChange={setSelectedSubjectId}
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
+        <div className="flex justify-center w-full px-4 sm:px-6 lg:px-8 py-8">
+            <AttendanceSheet
+              teacher={selectedTeacher}
+              students={STUDENTS}
+              subjects={SUBJECTS}
+              onLogout={handleLogout}
+              attendance={attendance}
+              onAttendanceChange={handleAttendanceChange}
+              selectedSubjectId={selectedSubjectId}
+              onSubjectChange={setSelectedSubjectId}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+            />
+        </div>
       )}
     </div>
   );
